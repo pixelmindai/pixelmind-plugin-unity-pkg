@@ -21,7 +21,7 @@ and add the following in your `dependencies` (make sure to respect JSON commas):
 {
  "dependencies": {
   "com.pusher.pusherwebsocketunity": "https://github.com/pusher/pusher-websocket-unity.git#upm",
-  "ai.330.pixelmindsdk": "https://github.com/pixelmindai/pixelmind-plugin-unity-package.git"
+  "ai.330.pixelmindsdk": "https://github.com/pixelmindai/pixelmind-plugin-unity-pkg.git"
  }
 }
 ```
@@ -37,7 +37,7 @@ If using Pusher make sure to use this URL (uses the UPM branch):
 
 and for Pixelmind SDK the default one will do the trick:
 
-`https://github.com/pixelmindai/pixelmind-plugin-unity-package.git`
+`https://github.com/pixelmindai/pixelmind-plugin-unity-pkg.git`
 
 For known issues after installation check the section [below](#known-issues).
 
