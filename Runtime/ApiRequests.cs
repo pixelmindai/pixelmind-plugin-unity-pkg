@@ -12,7 +12,7 @@ namespace PixelmindSDK
         public static async Task<List<Generator>> GetGenerators(string apiKey)
         {
             var getGeneratorsRequest = UnityWebRequest.Get(
-                "https://backend.pixelmind.ai/api/v1/generators" + "?api_key=" + apiKey
+                "https://api.blockadelabs.com/api/v1/generators" + "?api_key=" + apiKey
             );
 
             await getGeneratorsRequest.SendWebRequest();
@@ -52,7 +52,7 @@ namespace PixelmindSDK
             string parametersJsonString = JsonConvert.SerializeObject(parameters);
 
             var createImagineRequest = new UnityWebRequest();
-            createImagineRequest.url = "https://backend.pixelmind.ai/api/v1/imagine/requests?api_key=" + apiKey;
+            createImagineRequest.url = "https://api.blockadelabs.com/api/v1/imagine/requests?api_key=" + apiKey;
             createImagineRequest.method = "POST";
             createImagineRequest.downloadHandler = new DownloadHandlerBuffer();
             createImagineRequest.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(parametersJsonString));
@@ -89,7 +89,7 @@ namespace PixelmindSDK
             Dictionary<string, string> result = new Dictionary<string, string>();
            
             var getImagineRequest = UnityWebRequest.Get(
-                "https://backend.pixelmind.ai/api/v1/imagine/requests/" + imagineId + "?api_key=" + apiKey
+                "https://api.blockadelabs.com/api/v1/imagine/requests/" + imagineId + "?api_key=" + apiKey
             );
 
             await getImagineRequest.SendWebRequest();
