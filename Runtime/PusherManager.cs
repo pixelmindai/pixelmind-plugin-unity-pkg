@@ -16,7 +16,7 @@ public class PusherManager : MonoBehaviour
     public static PusherManager instance = null;
     private Pusher _pusher;
     private Channel _channel;
-    private const string APP_KEY = "3134cd1107cac5d4c7d4";
+    private const string APP_KEY = "a6a7b7662238ce4494d5";
     private const string APP_CLUSTER = "mt1";
     private List<int> imagineIds = new List<int>();
     private int previousImagineCount = 0;
