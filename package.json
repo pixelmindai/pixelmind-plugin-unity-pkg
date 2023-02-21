@@ -1,6 +1,6 @@
 {
   "name": "ai.330.pixelmindsdk",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "displayName": "Pixelmind SDK",
   "description": "Unity package that allows you to generate infinite game assets using AI.",
   "unity": "2020.3",
