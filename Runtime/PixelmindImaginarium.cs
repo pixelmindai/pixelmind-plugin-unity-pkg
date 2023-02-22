@@ -29,11 +29,17 @@ public class PixelmindImaginarium : MonoBehaviour
     
     public Texture2D previewImage { get; set; }
     public List<GeneratorField> generatorFields = new List<GeneratorField>();
+    public List<SkyboxStyleField> skyboxStyleFields = new List<SkyboxStyleField>();
     public List<Generator> generators = new List<Generator>();
+    public List<SkyboxStyle> skyboxStyles = new List<SkyboxStyle>();
     public string[] generatorOptions;
+    public string[] skyboxStyleOptions;
     public int generatorOptionsIndex = 0;
+    public int skyboxStyleOptionsIndex = 0;
     public int lastGeneratorOptionsIndex = 0;
+    public int lastSkyboxStyleOptionsIndex = 0;
     public int imagineId = 0;
+    public int skyboxId = 0;
     private int progressId;
     GUIStyle guiStyle;
     
@@ -119,6 +125,29 @@ public class PixelmindImaginarium : MonoBehaviour
         guiStyle.padding = new RectOffset(20, 20, 20, 20);
     }
     
+    public async Task GetSkyboxStyleOptions()
+    {
+        Debug.Log("GetSkyboxStyleOptions");
+        skyboxStyles = await ApiRequests.GetSkyboxStyles(apiKey);
+        Debug.Log(skyboxStyles);
+        skyboxStyleOptions = skyboxStyles.Select(s => s.name).ToArray();
+        // skyboxStyleOptions = skyboxStyles.ToArray();
+        // Debug.Log(skyboxStyleOptions);
+
+        GetSkyboxStyleFields(skyboxStyleOptionsIndex);
+    }
+    
+    public void GetSkyboxStyleFields(int index)
+    {
+        skyboxStyleFields = new List<SkyboxStyleField>();
+        
+        foreach (UserInput fieldData in skyboxStyles[index].userInputs)
+        {
+            var field = new SkyboxStyleField(fieldData);
+            skyboxStyleFields.Add(field);
+        }
+    }
+    
     public async Task GetGeneratorsWithFields()
     {
         generators = await ApiRequests.GetGenerators(apiKey);
@@ -135,6 +164,49 @@ public class PixelmindImaginarium : MonoBehaviour
         {
             var field = new GeneratorField(fieldData);
             generatorFields.Add(field);
+        }
+    }
+    
+    public async Task InitializeSkyboxGeneration(List<SkyboxStyleField> skyboxStyleFields, int id, bool runtime = false)
+    {
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            Debug.Log("You need to provide an Api Key in api options.");
+            return;
+        }
+        
+        isCancelled = false;
+        await CreateSkybox(skyboxStyleFields, id, runtime);
+    }
+    
+    async Task CreateSkybox(List<SkyboxStyleField> skyboxStyleFields, int id, bool runtime = false)
+    {
+        percentageCompleted = 1;
+        progressId = Progress.Start("Generating Skybox Assets");
+
+        var createSkyboxId = await ApiRequests.CreateSkybox(skyboxStyleFields, id, apiKey);
+
+        if (createSkyboxId != 0)
+        {
+            skyboxId = createSkyboxId;
+            percentageCompleted = 33;
+            CalculateProgress();
+
+            var pusherManager = false;
+            
+            #if PUSHER_PRESENT
+                        
+            pusherManager = FindObjectOfType<PusherManager>();
+                        
+            #endif
+
+            if (
+                !pusherManager || 
+                (pusherManager && !runtime)
+            )
+            {
+                _ = GetAssets();
+            }
         }
     }
 
