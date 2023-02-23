@@ -14,8 +14,8 @@ namespace PixelmindSDK
         public static async Task<List<SkyboxStyle>> GetSkyboxStyles(string apiKey)
         {
             var getSkyboxStylesRequest = UnityWebRequest.Get(
-                // "https://api.blockadelabs.com/api/v1/skybox" + "?api_key=" + apiKey
-                "http://backend.pixelmind.test/api/v1/skybox" + "?api_key=" + apiKey
+                // "https://backend.blockadelabs.com/api/v1/skybox" + "?api_key=" + apiKey
+                "https://backend.blockadelabs.com/api/v1/skybox" + "?api_key=" + apiKey
             );
             
             Debug.Log(getSkyboxStylesRequest);
@@ -109,7 +109,7 @@ namespace PixelmindSDK
         public static async Task<List<Generator>> GetGenerators(string apiKey)
         {
             var getGeneratorsRequest = UnityWebRequest.Get(
-                "https://api.blockadelabs.com/api/v1/generators" + "?api_key=" + apiKey
+                "https://backend.blockadelabs.com/api/v1/generators" + "?api_key=" + apiKey
             );
 
             await getGeneratorsRequest.SendWebRequest();
@@ -157,46 +157,49 @@ namespace PixelmindSDK
             Debug.Log(parameters["prompt"].ToString());
             Debug.Log(userInputs.ToString());
             Debug.Log(id);
-            Debug.Log("http://backend.pixelmind.test/api/v1/skybox/submit/" + id + "?api_key=" + apiKey);
+            Debug.Log("https://backend.blockadelabs.com/api/v1/skybox/submit/" + id + "?api_key=" + apiKey);
 
             string parametersJsonString = JsonConvert.SerializeObject(parameters);
 
-            var createImagineRequest = new UnityWebRequest();
-            createImagineRequest.url = "http://backend.pixelmind.test/api/v1/skybox/submit/" + id + "?api_key=" + apiKey;
-            createImagineRequest.method = "POST";
-            createImagineRequest.downloadHandler = new DownloadHandlerBuffer();
-            createImagineRequest.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(parametersJsonString));
-            createImagineRequest.timeout = 60;
-            createImagineRequest.SetRequestHeader("Accept", "application/json");
-            createImagineRequest.SetRequestHeader("Content-Type", "application/json; charset=UTF-8");
+            var createSkyboxRequest = new UnityWebRequest();
+            createSkyboxRequest.url = "https://backend.blockadelabs.com/api/v1/skybox/submit/" + id + "?api_key=" + apiKey;
+            createSkyboxRequest.method = "POST";
+            createSkyboxRequest.downloadHandler = new DownloadHandlerBuffer();
+            createSkyboxRequest.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(parametersJsonString));
+            createSkyboxRequest.timeout = 60;
+            createSkyboxRequest.SetRequestHeader("Accept", "application/json");
+            createSkyboxRequest.SetRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-            await createImagineRequest.SendWebRequest();
+            await createSkyboxRequest.SendWebRequest();
             
-            Debug.Log(createImagineRequest.result);
-            Debug.Log(createImagineRequest.downloadHandler.text);
+            Debug.Log(createSkyboxRequest.result);
+            Debug.Log(createSkyboxRequest.downloadHandler.text);
 
-            return 0;
-
-            // if (createImagineRequest.result != UnityWebRequest.Result.Success)
-            // {
-            //     Debug.Log("Create Imagine Error: " + createImagineRequest.error);
-            //     createImagineRequest.Dispose();
-            // }
-            // else
-            // {
-            //     var result = JsonConvert.DeserializeObject<CreateImagineResult>(createImagineRequest.downloadHandler.text);
-            //     
-            //     createImagineRequest.Dispose();
-            //
-            //     if (result?.request == null)
-            //     {
-            //         return 0;
-            //     }
-            //
-            //     return int.Parse(result.request.id);
-            // }
-            //
             // return 0;
+
+            if (createSkyboxRequest.result != UnityWebRequest.Result.Success)
+            {
+                Debug.Log("Create Skybox Error: " + createSkyboxRequest.error);
+                createSkyboxRequest.Dispose();
+            }
+            else
+            {
+                var result = JsonConvert.DeserializeObject<CreateSkyboxResult>(createSkyboxRequest.downloadHandler.text);
+                
+                Debug.Log(result);
+                Debug.Log(result.imaginations);
+                Debug.Log(result.imaginations[0].id);
+                createSkyboxRequest.Dispose();
+            
+                if (result?.imaginations[0] == null)
+                {
+                    return 0;
+                }
+            
+                return int.Parse(result.imaginations[0].id);
+            }
+            
+            return 0;
         }
 
         public static async Task<int> CreateImagine(List<GeneratorField> generatorFields, string generator, string apiKey)
@@ -216,7 +219,7 @@ namespace PixelmindSDK
             string parametersJsonString = JsonConvert.SerializeObject(parameters);
 
             var createImagineRequest = new UnityWebRequest();
-            createImagineRequest.url = "https://api.blockadelabs.com/api/v1/imagine/requests?api_key=" + apiKey;
+            createImagineRequest.url = "https://backend.blockadelabs.com/api/v1/imagine/requests?api_key=" + apiKey;
             createImagineRequest.method = "POST";
             createImagineRequest.downloadHandler = new DownloadHandlerBuffer();
             createImagineRequest.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(parametersJsonString));
@@ -253,7 +256,7 @@ namespace PixelmindSDK
             Dictionary<string, string> result = new Dictionary<string, string>();
            
             var getImagineRequest = UnityWebRequest.Get(
-                "https://api.blockadelabs.com/api/v1/imagine/requests/" + imagineId + "?api_key=" + apiKey
+                "https://backend.blockadelabs.com/api/v1/imagine/requests/" + imagineId + "?api_key=" + apiKey
             );
 
             await getImagineRequest.SendWebRequest();

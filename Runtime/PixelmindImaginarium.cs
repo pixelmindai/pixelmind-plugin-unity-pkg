@@ -39,7 +39,7 @@ public class PixelmindImaginarium : MonoBehaviour
     public int lastGeneratorOptionsIndex = 0;
     public int lastSkyboxStyleOptionsIndex = 0;
     public int imagineId = 0;
-    public int skyboxId = 0;
+    // public int skyboxId = 0;
     private int progressId;
     GUIStyle guiStyle;
     
@@ -185,10 +185,12 @@ public class PixelmindImaginarium : MonoBehaviour
         progressId = Progress.Start("Generating Skybox Assets");
 
         var createSkyboxId = await ApiRequests.CreateSkybox(skyboxStyleFields, id, apiKey);
+        
+        Debug.Log(createSkyboxId);
 
         if (createSkyboxId != 0)
         {
-            skyboxId = createSkyboxId;
+            imagineId = createSkyboxId;
             percentageCompleted = 33;
             CalculateProgress();
 

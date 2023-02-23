@@ -3,6 +3,17 @@
 namespace PixelmindSDK
 {
     [System.Serializable]
+    public class CreateSkyboxResult
+    {
+        public List<CreateSkyboxRequest> imaginations { get; set; }
+    }
+    
+    public class CreateSkyboxRequest
+    {
+        public string id { get; set; }
+    }
+    
+    [System.Serializable]
     public class CreateImagineResult
     {
         public CreateImagineRequest request { get; set; }
