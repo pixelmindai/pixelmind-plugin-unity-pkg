@@ -43,7 +43,6 @@ public class PixelmindImaginarium : MonoBehaviour
     public int lastGeneratorOptionsIndex = 0;
     public int lastSkyboxStyleOptionsIndex = 0;
     public int imagineId = 0;
-    // public int skyboxId = 0;
     private int progressId;
     GUIStyle guiStyle;
     
@@ -74,7 +73,7 @@ public class PixelmindImaginarium : MonoBehaviour
             _ = GetSkyboxStyleOptions();
         }
 
-        // Iterate over generator fields and render them
+        // Iterate over skybox fields and render them
         if (skyboxStyleFields.Count > 0)
         {
             RenderSkyboxInGameFields();
@@ -202,12 +201,8 @@ public class PixelmindImaginarium : MonoBehaviour
     
     public async Task GetSkyboxStyleOptions()
     {
-        Debug.Log("GetSkyboxStyleOptions");
         skyboxStyles = await ApiRequests.GetSkyboxStyles(apiKey);
-        Debug.Log(skyboxStyles);
         skyboxStyleOptions = skyboxStyles.Select(s => s.name).ToArray();
-        // skyboxStyleOptions = skyboxStyles.ToArray();
-        // Debug.Log(skyboxStyleOptions);
 
         GetSkyboxStyleFields(skyboxStyleOptionsIndex);
     }
@@ -260,8 +255,6 @@ public class PixelmindImaginarium : MonoBehaviour
         progressId = Progress.Start("Generating Skybox Assets");
 
         var createSkyboxId = await ApiRequests.CreateSkybox(skyboxStyleFields, id, apiKey);
-        
-        Debug.Log(createSkyboxId);
 
         if (createSkyboxId != 0)
         {

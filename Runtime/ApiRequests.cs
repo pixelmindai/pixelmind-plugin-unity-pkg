@@ -14,15 +14,10 @@ namespace PixelmindSDK
         public static async Task<List<SkyboxStyle>> GetSkyboxStyles(string apiKey)
         {
             var getSkyboxStylesRequest = UnityWebRequest.Get(
-                // "https://backend.blockadelabs.com/api/v1/skybox" + "?api_key=" + apiKey
                 "https://backend.blockadelabs.com/api/v1/skybox" + "?api_key=" + apiKey
             );
-            
-            Debug.Log(getSkyboxStylesRequest);
 
             await getSkyboxStylesRequest.SendWebRequest();
-            
-            Debug.Log(getSkyboxStylesRequest.result);
 
             if (getSkyboxStylesRequest.result != UnityWebRequest.Result.Success)
             {
@@ -31,47 +26,22 @@ namespace PixelmindSDK
             }
             else
             {
-                Debug.Log("skyboxStyles before");
-                Debug.Log(getSkyboxStylesRequest.downloadHandler.text);
                 var skyboxStyles = JObject.Parse(getSkyboxStylesRequest.downloadHandler.text);
-                //     JsonConvert.DeserializeObject<SkyboxStyleResult>(getSkyboxStylesRequest.downloadHandler.text);
-
-                // var test = JsonConvert.DeserializeObject<JObject>(getSkyboxStylesRequest.downloadHandler.text);
-                // var jo = JObject.Parse(getSkyboxStylesRequest.downloadHandler.text);
-                
                 var skyboxStylesList = new List<SkyboxStyle>();
 
                 foreach (var item in skyboxStyles)
                 {
                     if (int.TryParse(item.Key, out int n))
                     {
-                        // skyboxStylesList.Add(item.Value["name"].ToString());
-                        Debug.Log(item.Value["user_prompts"]["inputs"]);
-                        Debug.Log(item.Value["user_prompts"]["inputs"].ToList());
-                        Debug.Log(item.Value["user_prompts"]["inputs"].ToString());
-                        // Debug.Log(item.Value["user_prompts"]["inputs"].ToObject<UserInput>().ToString());
-
                         var skyboxStyle = new SkyboxStyle(
                             int.Parse(item.Value["id"].ToString()),
                             item.Value["name"].ToString()
-                            // item.Value["user_prompts"]["inputs"].ToString()
-                            // item.Value["user_prompts"]["inputs"].ToObject<UserInput>()
-                            // item.Value["user_prompts"]["inputs"].ToString()
                         );
-                        
-                        Debug.Log(skyboxStyle);
 
                         var userInputs = item.Value["user_prompts"]["inputs"].Children().OfType<JProperty>();
 
                         foreach (var userInput in userInputs)
                         {
-                            Debug.Log(userInput);
-                            Debug.Log(userInput.Name);
-                            Debug.Log(userInput.Value["id"]);
-                            Debug.Log(userInput.Value["name"]);
-                            Debug.Log(userInput.Value["placeholder"]);
-                            // Debug.Log(inputProperty.Value<int?>("id"));
-                            // Debug.Log(input.Key);
                             skyboxStyle.userInputs.Add(
                                 new UserInput(
                                     userInput.Name,
@@ -80,23 +50,11 @@ namespace PixelmindSDK
                                     userInput.Value["placeholder"].ToString()
                                 )
                             );
-                            
-                            Debug.Log(skyboxStyle.userInputs);
                         }
 
                         skyboxStylesList.Add(skyboxStyle);
                     }
                 }
-                
-                Debug.Log(skyboxStylesList.Count);
-                Debug.Log(skyboxStylesList.ToString());
-                Debug.Log(skyboxStylesList[0]);
-                Debug.Log(skyboxStylesList[0].id);
-                Debug.Log(skyboxStylesList[0].name);
-                Debug.Log(skyboxStylesList[0].userInputs);
-                Debug.Log(skyboxStylesList[0].userInputs[0]);
-                Debug.Log(skyboxStylesList[0].userInputs[0].id);
-                Debug.Log(skyboxStylesList[0].userInputs[0].key);
 
                 getSkyboxStylesRequest.Dispose();
 
@@ -134,7 +92,7 @@ namespace PixelmindSDK
         
         public static async Task<int> CreateSkybox(List<SkyboxStyleField> skyboxStyleFields, int id, string apiKey)
         {
-            // Create a dictionary of string keys and values to hold the JSON POST params
+            // Create a dictionary of string keys and dictionary values to hold the JSON POST params
             Dictionary<string, Dictionary<string, string>> parameters = new Dictionary<string, Dictionary<string, string>>();
             Dictionary<string, string> userInputs = new Dictionary<string, string>();
             parameters.Add("prompt", new Dictionary<string, string>());
@@ -143,21 +101,11 @@ namespace PixelmindSDK
             {
                 if (field.value != "")
                 {
-                    Debug.Log(field.key);
-                    Debug.Log(field.value);
                     userInputs.Add(field.key.Trim('[', ']'), field.value);
                 }
             }
 
             parameters["prompt"] = userInputs;
-            
-            Debug.Log(string.Join(", ", parameters["prompt"]));
-            
-            Debug.Log(parameters.ToString());
-            Debug.Log(parameters["prompt"].ToString());
-            Debug.Log(userInputs.ToString());
-            Debug.Log(id);
-            Debug.Log("https://backend.blockadelabs.com/api/v1/skybox/submit/" + id + "?api_key=" + apiKey);
 
             string parametersJsonString = JsonConvert.SerializeObject(parameters);
 
@@ -171,11 +119,6 @@ namespace PixelmindSDK
             createSkyboxRequest.SetRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
             await createSkyboxRequest.SendWebRequest();
-            
-            Debug.Log(createSkyboxRequest.result);
-            Debug.Log(createSkyboxRequest.downloadHandler.text);
-
-            // return 0;
 
             if (createSkyboxRequest.result != UnityWebRequest.Result.Success)
             {
@@ -186,9 +129,6 @@ namespace PixelmindSDK
             {
                 var result = JsonConvert.DeserializeObject<CreateSkyboxResult>(createSkyboxRequest.downloadHandler.text);
                 
-                Debug.Log(result);
-                Debug.Log(result.imaginations);
-                Debug.Log(result.imaginations[0].id);
                 createSkyboxRequest.Dispose();
             
                 if (result?.imaginations[0] == null)

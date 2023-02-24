@@ -26,8 +26,7 @@ namespace PixelmindSDK
         private bool showGenerators = true;
         private bool showSkybox = true;
         private bool showOutput = true;
-        // private bool showGenerationButtons = true;
-        
+
         void OnEnable()
         {
             assignToMaterial = serializedObject.FindProperty("assignToMaterial");
@@ -113,7 +112,6 @@ namespace PixelmindSDK
                 {
                     if (GUILayout.Button("Get Styles"))
                     {
-                        Debug.Log("get");
                         _ = pixelmindImaginarium.GetSkyboxStyleOptions();
                     }
 
@@ -141,29 +139,6 @@ namespace PixelmindSDK
                         }
                     }
                 }
-
-                // showGenerationButtons = EditorGUILayout.Foldout(showGenerationButtons, "Generate");
-
-                // if (showGenerationButtons)
-                // {
-                //     if (pixelmindImaginarium.PercentageCompleted() >= 0 && pixelmindImaginarium.PercentageCompleted() < 100)
-                //     {
-                //         if (GUILayout.Button("Cancel (" + pixelmindImaginarium.PercentageCompleted() + "%)"))
-                //         {
-                //             pixelmindImaginarium.Cancel();
-                //         }
-                //     }
-                //     else
-                //     {
-                //         if (GUILayout.Button("Generate"))
-                //         {
-                //             _ = pixelmindImaginarium.InitializeGeneration(
-                //                 pixelmindImaginarium.generatorFields,
-                //                 pixelmindImaginarium.generators[pixelmindImaginarium.generatorOptionsIndex].generator
-                //             );
-                //         }
-                //     }
-                // }
 
                 showOutput = EditorGUILayout.Foldout(showOutput, "Output");
 
