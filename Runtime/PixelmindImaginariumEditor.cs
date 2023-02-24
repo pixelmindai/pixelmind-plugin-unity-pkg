@@ -10,29 +10,39 @@ namespace PixelmindSDK
         private SerializedProperty assignToMaterial;
         private SerializedProperty assignToSpriteRenderer;
         private SerializedProperty enableGUI;
+        private SerializedProperty enableSkyboxGUI;
         private SerializedProperty resultImage;
         private SerializedProperty apiKey;
         private SerializedProperty generatorFields;
+        private SerializedProperty skyboxStyleFields;
         private SerializedProperty generators;
+        private SerializedProperty skyboxStyles;
         private SerializedProperty generatorOptions;
+        private SerializedProperty skyboxStyleOptions;
         private SerializedProperty generatorOptionsIndex;
+        private SerializedProperty skyboxStyleOptionsIndex;
         private bool showApi = true;
         private bool showBasic = true;
-        private bool showGenerators = true;
+        private bool showImagine = true;
+        private bool showSkybox = true;
         private bool showOutput = true;
-        private bool showGenerationButtons = true;
-        
+
         void OnEnable()
         {
             assignToMaterial = serializedObject.FindProperty("assignToMaterial");
             assignToSpriteRenderer = serializedObject.FindProperty("assignToSpriteRenderer");
             enableGUI = serializedObject.FindProperty("enableGUI");
+            enableSkyboxGUI = serializedObject.FindProperty("enableSkyboxGUI");
             apiKey = serializedObject.FindProperty("apiKey");
             resultImage = serializedObject.FindProperty("resultImage");
             generatorFields = serializedObject.FindProperty("generatorFields");
+            skyboxStyleFields = serializedObject.FindProperty("skyboxStyleFields");
             generators = serializedObject.FindProperty("generators");
+            skyboxStyles = serializedObject.FindProperty("skyboxStyles");
             generatorOptions = serializedObject.FindProperty("generatorOptions");
+            skyboxStyleOptions = serializedObject.FindProperty("skyboxStyleOptions");
             generatorOptionsIndex = serializedObject.FindProperty("generatorOptionsIndex");
+            skyboxStyleOptionsIndex = serializedObject.FindProperty("skyboxStyleOptionsIndex");
         }
 
         public override void OnInspectorGUI()
@@ -55,15 +65,16 @@ namespace PixelmindSDK
             if (showBasic)
             {
                 EditorGUILayout.PropertyField(enableGUI);
+                EditorGUILayout.PropertyField(enableSkyboxGUI);
                 EditorGUILayout.PropertyField(assignToSpriteRenderer);
                 EditorGUILayout.PropertyField(assignToMaterial);
             }
 
             if (!EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                showGenerators = EditorGUILayout.Foldout(showGenerators, "Generators");
+                showImagine = EditorGUILayout.Foldout(showImagine, "Imagine");
 
-                if (showGenerators)
+                if (showImagine)
                 {
                     if (GUILayout.Button("Get Generators"))
                     {
@@ -75,12 +86,7 @@ namespace PixelmindSDK
                     {
                         RenderEditorFields(pixelmindImaginarium);
                     }
-                }
-
-                showGenerationButtons = EditorGUILayout.Foldout(showGenerationButtons, "Generate");
-
-                if (showGenerationButtons)
-                {
+                    
                     if (pixelmindImaginarium.PercentageCompleted() >= 0 && pixelmindImaginarium.PercentageCompleted() < 100)
                     {
                         if (GUILayout.Button("Cancel (" + pixelmindImaginarium.PercentageCompleted() + "%)"))
@@ -95,6 +101,40 @@ namespace PixelmindSDK
                             _ = pixelmindImaginarium.InitializeGeneration(
                                 pixelmindImaginarium.generatorFields,
                                 pixelmindImaginarium.generators[pixelmindImaginarium.generatorOptionsIndex].generator
+                            );
+                        }
+                    }
+                }
+                
+                showSkybox = EditorGUILayout.Foldout(showSkybox, "Skybox");
+
+                if (showSkybox)
+                {
+                    if (GUILayout.Button("Get Styles"))
+                    {
+                        _ = pixelmindImaginarium.GetSkyboxStyleOptions();
+                    }
+
+                    // Iterate over skybox style fields and render them in the GUI
+                    if (pixelmindImaginarium.skyboxStyleFields.Count > 0)
+                    {
+                        RenderSkyboxEditorFields(pixelmindImaginarium);
+                    }
+                    
+                    if (pixelmindImaginarium.PercentageCompleted() >= 0 && pixelmindImaginarium.PercentageCompleted() < 100)
+                    {
+                        if (GUILayout.Button("Cancel (" + pixelmindImaginarium.PercentageCompleted() + "%)"))
+                        {
+                            pixelmindImaginarium.Cancel();
+                        }
+                    }
+                    else
+                    {
+                        if (GUILayout.Button("Generate Skybox"))
+                        {
+                            _ = pixelmindImaginarium.InitializeSkyboxGeneration(
+                                pixelmindImaginarium.skyboxStyleFields,
+                                pixelmindImaginarium.skyboxStyles[pixelmindImaginarium.skyboxStyleOptionsIndex].id
                             );
                         }
                     }
@@ -138,6 +178,36 @@ namespace PixelmindSDK
                 // Create text field for field value
                 field.value = EditorGUILayout.TextField(field.value);
 
+                // End horizontal layout
+                EditorGUILayout.EndHorizontal();
+            }
+        }
+        
+        private void RenderSkyboxEditorFields(PixelmindImaginarium pixelmindImaginarium)
+        {
+            EditorGUI.BeginChangeCheck();
+
+            pixelmindImaginarium.skyboxStyleOptionsIndex = EditorGUILayout.Popup(
+                pixelmindImaginarium.skyboxStyleOptionsIndex,
+                pixelmindImaginarium.skyboxStyleOptions
+            );
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                pixelmindImaginarium.GetSkyboxStyleFields(pixelmindImaginarium.skyboxStyleOptionsIndex);
+            }
+
+            foreach (var field in pixelmindImaginarium.skyboxStyleFields)
+            {
+                // Begin horizontal layout
+                EditorGUILayout.BeginHorizontal();
+                
+                // Create label for field
+                EditorGUILayout.LabelField(field.name + "*");
+            
+                // Create text field for field value
+                field.value = EditorGUILayout.TextField(field.value);
+            
                 // End horizontal layout
                 EditorGUILayout.EndHorizontal();
             }
