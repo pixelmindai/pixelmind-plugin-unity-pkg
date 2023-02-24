@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -9,6 +11,59 @@ namespace PixelmindSDK
 {
     public class ApiRequests
     {
+        public static async Task<List<SkyboxStyle>> GetSkyboxStyles(string apiKey)
+        {
+            var getSkyboxStylesRequest = UnityWebRequest.Get(
+                "https://backend.blockadelabs.com/api/v1/skybox" + "?api_key=" + apiKey
+            );
+
+            await getSkyboxStylesRequest.SendWebRequest();
+
+            if (getSkyboxStylesRequest.result != UnityWebRequest.Result.Success)
+            {
+                Debug.Log("Get skybox styles error: " + getSkyboxStylesRequest.error);
+                getSkyboxStylesRequest.Dispose();
+            }
+            else
+            {
+                var skyboxStyles = JObject.Parse(getSkyboxStylesRequest.downloadHandler.text);
+                var skyboxStylesList = new List<SkyboxStyle>();
+
+                foreach (var item in skyboxStyles)
+                {
+                    if (int.TryParse(item.Key, out int n))
+                    {
+                        var skyboxStyle = new SkyboxStyle(
+                            int.Parse(item.Value["id"].ToString()),
+                            item.Value["name"].ToString()
+                        );
+
+                        var userInputs = item.Value["user_prompts"]["inputs"].Children().OfType<JProperty>();
+
+                        foreach (var userInput in userInputs)
+                        {
+                            skyboxStyle.userInputs.Add(
+                                new UserInput(
+                                    userInput.Name,
+                                    int.Parse(userInput.Value["id"].ToString()),
+                                    userInput.Value["name"].ToString(),
+                                    userInput.Value["placeholder"].ToString()
+                                )
+                            );
+                        }
+
+                        skyboxStylesList.Add(skyboxStyle);
+                    }
+                }
+
+                getSkyboxStylesRequest.Dispose();
+
+                return skyboxStylesList;
+            }
+
+            return null;
+        }
+        
         public static async Task<List<Generator>> GetGenerators(string apiKey)
         {
             var getGeneratorsRequest = UnityWebRequest.Get(
@@ -19,7 +74,7 @@ namespace PixelmindSDK
 
             if (getGeneratorsRequest.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log("Get generators Error: " + getGeneratorsRequest.error);
+                Debug.Log("Get generators error: " + getGeneratorsRequest.error);
                 getGeneratorsRequest.Dispose();
             }
             else
@@ -33,6 +88,58 @@ namespace PixelmindSDK
             }
 
             return null;
+        }
+        
+        public static async Task<int> CreateSkybox(List<SkyboxStyleField> skyboxStyleFields, int id, string apiKey)
+        {
+            // Create a dictionary of string keys and dictionary values to hold the JSON POST params
+            Dictionary<string, Dictionary<string, string>> parameters = new Dictionary<string, Dictionary<string, string>>();
+            Dictionary<string, string> userInputs = new Dictionary<string, string>();
+            parameters.Add("prompt", new Dictionary<string, string>());
+
+            foreach (var field in skyboxStyleFields)
+            {
+                if (field.value != "")
+                {
+                    userInputs.Add(field.key.Trim('[', ']'), field.value);
+                }
+            }
+
+            parameters["prompt"] = userInputs;
+
+            string parametersJsonString = JsonConvert.SerializeObject(parameters);
+
+            var createSkyboxRequest = new UnityWebRequest();
+            createSkyboxRequest.url = "https://backend.blockadelabs.com/api/v1/skybox/submit/" + id + "?api_key=" + apiKey;
+            createSkyboxRequest.method = "POST";
+            createSkyboxRequest.downloadHandler = new DownloadHandlerBuffer();
+            createSkyboxRequest.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(parametersJsonString));
+            createSkyboxRequest.timeout = 60;
+            createSkyboxRequest.SetRequestHeader("Accept", "application/json");
+            createSkyboxRequest.SetRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+            await createSkyboxRequest.SendWebRequest();
+
+            if (createSkyboxRequest.result != UnityWebRequest.Result.Success)
+            {
+                Debug.Log("Create Skybox Error: " + createSkyboxRequest.error);
+                createSkyboxRequest.Dispose();
+            }
+            else
+            {
+                var result = JsonConvert.DeserializeObject<CreateSkyboxResult>(createSkyboxRequest.downloadHandler.text);
+                
+                createSkyboxRequest.Dispose();
+            
+                if (result?.imaginations[0] == null)
+                {
+                    return 0;
+                }
+            
+                return int.Parse(result.imaginations[0].id);
+            }
+            
+            return 0;
         }
 
         public static async Task<int> CreateImagine(List<GeneratorField> generatorFields, string generator, string apiKey)

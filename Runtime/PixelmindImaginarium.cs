@@ -14,6 +14,10 @@ public class PixelmindImaginarium : MonoBehaviour
     [Tooltip("Specifies if in-game GUI should be displayed")]
     [SerializeField]
     public bool enableGUI = false;
+    
+    [Tooltip("Specifies if in-game Skybox GUI should be displayed")]
+    [SerializeField]
+    public bool enableSkyboxGUI = false;
 
     [Tooltip("Specifies if the result should automatically be assigned as the sprite of the current game objects sprite renderer")]
     [SerializeField]
@@ -29,10 +33,15 @@ public class PixelmindImaginarium : MonoBehaviour
     
     public Texture2D previewImage { get; set; }
     public List<GeneratorField> generatorFields = new List<GeneratorField>();
+    public List<SkyboxStyleField> skyboxStyleFields = new List<SkyboxStyleField>();
     public List<Generator> generators = new List<Generator>();
+    public List<SkyboxStyle> skyboxStyles = new List<SkyboxStyle>();
     public string[] generatorOptions;
+    public string[] skyboxStyleOptions;
     public int generatorOptionsIndex = 0;
+    public int skyboxStyleOptionsIndex = 0;
     public int lastGeneratorOptionsIndex = 0;
+    public int lastSkyboxStyleOptionsIndex = 0;
     public int imagineId = 0;
     private int progressId;
     GUIStyle guiStyle;
@@ -45,22 +54,93 @@ public class PixelmindImaginarium : MonoBehaviour
     {
         if (enableGUI)
         {
-            DefineStyles();
+            DrawGUILayout();
+        } 
+        else if (enableSkyboxGUI)
+        {
+            DrawSkyboxGUILayout();
+        }
+    }
+    
+    private void DrawSkyboxGUILayout()
+    {
+        DefineStyles();
         
-            GUILayout.BeginArea(new Rect(Screen.width - (Screen.width / 3), 0, 300, Screen.height), guiStyle);
+        GUILayout.BeginArea(new Rect(Screen.width - (Screen.width / 3), 0, 300, Screen.height), guiStyle);
         
-            if (GUILayout.Button("Get Generators"))
-            {
-                _ = GetGeneratorsWithFields();
-            }
+        if (GUILayout.Button("Get Styles"))
+        {
+            _ = GetSkyboxStyleOptions();
+        }
 
-            // Iterate over generator fields and render them
-            if (generatorFields.Count > 0)
-            {
-                RenderInGameFields();
-            }
+        // Iterate over skybox fields and render them
+        if (skyboxStyleFields.Count > 0)
+        {
+            RenderSkyboxInGameFields();
+        }
             
-            GUILayout.EndArea(); 
+        GUILayout.EndArea(); 
+    }
+
+    private void DrawGUILayout()
+    {
+        DefineStyles();
+        
+        GUILayout.BeginArea(new Rect(Screen.width - (Screen.width / 3), 0, 300, Screen.height), guiStyle);
+        
+        if (GUILayout.Button("Get Generators"))
+        {
+            _ = GetGeneratorsWithFields();
+        }
+
+        // Iterate over generator fields and render them
+        if (generatorFields.Count > 0)
+        {
+            RenderInGameFields();
+        }
+            
+        GUILayout.EndArea(); 
+    }
+    
+    private void RenderSkyboxInGameFields()
+    {
+        GUILayout.BeginVertical("Box");
+        skyboxStyleOptionsIndex = GUILayout.SelectionGrid(skyboxStyleOptionsIndex, skyboxStyleOptions, 1);
+        GUILayout.EndVertical();
+            
+        if (skyboxStyleOptionsIndex != lastSkyboxStyleOptionsIndex) {
+            GetSkyboxStyleFields(skyboxStyleOptionsIndex);
+            lastSkyboxStyleOptionsIndex = skyboxStyleOptionsIndex;
+        }
+            
+        foreach (var field in skyboxStyleFields)
+        {
+            // Begin horizontal layout
+            GUILayout.BeginHorizontal();
+            
+            // Create label for field
+            GUILayout.Label(field.name + "*");
+
+            // Create text field for field value
+            field.value = GUILayout.TextField(field.value);
+
+            // End horizontal layout
+            GUILayout.EndHorizontal();
+        }
+
+        if (PercentageCompleted() >= 0 && PercentageCompleted() < 100)
+        {
+            if (GUILayout.Button("Cancel (" + PercentageCompleted() + "%)"))
+            {
+                Cancel();
+            }
+        }
+        else
+        {
+            if (GUILayout.Button("Generate"))
+            {
+                _ = InitializeSkyboxGeneration(skyboxStyleFields, skyboxStyles[skyboxStyleOptionsIndex].id, true);
+            }
         }
     }
 
@@ -119,6 +199,25 @@ public class PixelmindImaginarium : MonoBehaviour
         guiStyle.padding = new RectOffset(20, 20, 20, 20);
     }
     
+    public async Task GetSkyboxStyleOptions()
+    {
+        skyboxStyles = await ApiRequests.GetSkyboxStyles(apiKey);
+        skyboxStyleOptions = skyboxStyles.Select(s => s.name).ToArray();
+
+        GetSkyboxStyleFields(skyboxStyleOptionsIndex);
+    }
+    
+    public void GetSkyboxStyleFields(int index)
+    {
+        skyboxStyleFields = new List<SkyboxStyleField>();
+        
+        foreach (UserInput fieldData in skyboxStyles[index].userInputs)
+        {
+            var field = new SkyboxStyleField(fieldData);
+            skyboxStyleFields.Add(field);
+        }
+    }
+    
     public async Task GetGeneratorsWithFields()
     {
         generators = await ApiRequests.GetGenerators(apiKey);
@@ -135,6 +234,49 @@ public class PixelmindImaginarium : MonoBehaviour
         {
             var field = new GeneratorField(fieldData);
             generatorFields.Add(field);
+        }
+    }
+    
+    public async Task InitializeSkyboxGeneration(List<SkyboxStyleField> skyboxStyleFields, int id, bool runtime = false)
+    {
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            Debug.Log("You need to provide an Api Key in api options.");
+            return;
+        }
+        
+        isCancelled = false;
+        await CreateSkybox(skyboxStyleFields, id, runtime);
+    }
+    
+    async Task CreateSkybox(List<SkyboxStyleField> skyboxStyleFields, int id, bool runtime = false)
+    {
+        percentageCompleted = 1;
+        progressId = Progress.Start("Generating Skybox Assets");
+
+        var createSkyboxId = await ApiRequests.CreateSkybox(skyboxStyleFields, id, apiKey);
+
+        if (createSkyboxId != 0)
+        {
+            imagineId = createSkyboxId;
+            percentageCompleted = 33;
+            CalculateProgress();
+
+            var pusherManager = false;
+            
+            #if PUSHER_PRESENT
+                        
+            pusherManager = FindObjectOfType<PusherManager>();
+                        
+            #endif
+
+            if (
+                !pusherManager || 
+                (pusherManager && !runtime)
+            )
+            {
+                _ = GetAssets();
+            }
         }
     }
 

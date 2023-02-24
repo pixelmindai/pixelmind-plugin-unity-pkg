@@ -3,6 +3,17 @@
 namespace PixelmindSDK
 {
     [System.Serializable]
+    public class CreateSkyboxResult
+    {
+        public List<CreateSkyboxRequest> imaginations { get; set; }
+    }
+    
+    public class CreateSkyboxRequest
+    {
+        public string id { get; set; }
+    }
+    
+    [System.Serializable]
     public class CreateImagineResult
     {
         public CreateImagineRequest request { get; set; }
@@ -60,6 +71,52 @@ namespace PixelmindSDK
             name = fieldData.Value.name; // "Imagine text prompt"
             value = fieldData.Value.default_value ?? "";
             required = fieldData.Value.required;
+        }
+    }
+    
+    public class SkyboxStyle
+    {
+        public int id;
+        public string name;
+        public List<UserInput> userInputs = new List<UserInput>();
+
+        // Constructor to initialize style with data from API response
+        public SkyboxStyle(int id, string name)
+        {
+            this.id = id;
+            this.name = name;
+        }
+    }
+    
+    public class UserInput
+    {
+        public string key;
+        public int id;
+        public string name;
+        public string placeholder;
+
+        // Constructor to initialize user input with data from API response
+        public UserInput(string key, int id, string name, string placeholder)
+        {
+            this.key = key; 
+            this.id = id; 
+            this.name = name;
+            this.placeholder = placeholder;
+        }
+    }
+    
+    public class SkyboxStyleField
+    {
+        public string key;
+        public string name;
+        public string value;
+
+        // Constructor to initialize skybox style field with data from API response
+        public SkyboxStyleField(UserInput fieldData)
+        {
+            key = fieldData.key; // [USER_INPUT_1]
+            name = fieldData.name; // "prompt"
+            value = "";
         }
     }
 }
