@@ -23,7 +23,7 @@ namespace PixelmindSDK
         private SerializedProperty skyboxStyleOptionsIndex;
         private bool showApi = true;
         private bool showBasic = true;
-        private bool showGenerators = true;
+        private bool showImagine = true;
         private bool showSkybox = true;
         private bool showOutput = true;
 
@@ -72,9 +72,9 @@ namespace PixelmindSDK
 
             if (!EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                showGenerators = EditorGUILayout.Foldout(showGenerators, "Generators");
+                showImagine = EditorGUILayout.Foldout(showImagine, "Imagine");
 
-                if (showGenerators)
+                if (showImagine)
                 {
                     if (GUILayout.Button("Get Generators"))
                     {
