@@ -10,6 +10,7 @@ namespace PixelmindSDK
         private SerializedProperty assignToMaterial;
         private SerializedProperty assignToSpriteRenderer;
         private SerializedProperty enableGUI;
+        private SerializedProperty enableSkyboxGUI;
         private SerializedProperty resultImage;
         private SerializedProperty apiKey;
         private SerializedProperty generatorFields;
@@ -32,6 +33,7 @@ namespace PixelmindSDK
             assignToMaterial = serializedObject.FindProperty("assignToMaterial");
             assignToSpriteRenderer = serializedObject.FindProperty("assignToSpriteRenderer");
             enableGUI = serializedObject.FindProperty("enableGUI");
+            enableSkyboxGUI = serializedObject.FindProperty("enableSkyboxGUI");
             apiKey = serializedObject.FindProperty("apiKey");
             resultImage = serializedObject.FindProperty("resultImage");
             generatorFields = serializedObject.FindProperty("generatorFields");
@@ -64,6 +66,7 @@ namespace PixelmindSDK
             if (showBasic)
             {
                 EditorGUILayout.PropertyField(enableGUI);
+                EditorGUILayout.PropertyField(enableSkyboxGUI);
                 EditorGUILayout.PropertyField(assignToSpriteRenderer);
                 EditorGUILayout.PropertyField(assignToMaterial);
             }
@@ -117,7 +120,7 @@ namespace PixelmindSDK
                     // Iterate over skybox style fields and render them in the GUI
                     if (pixelmindImaginarium.skyboxStyleFields.Count > 0)
                     {
-                        RenderSkyboxStyleFields(pixelmindImaginarium);
+                        RenderSkyboxEditorFields(pixelmindImaginarium);
                     }
                     
                     if (pixelmindImaginarium.PercentageCompleted() >= 0 && pixelmindImaginarium.PercentageCompleted() < 100)
@@ -205,7 +208,7 @@ namespace PixelmindSDK
             }
         }
         
-        private void RenderSkyboxStyleFields(PixelmindImaginarium pixelmindImaginarium)
+        private void RenderSkyboxEditorFields(PixelmindImaginarium pixelmindImaginarium)
         {
             EditorGUI.BeginChangeCheck();
 

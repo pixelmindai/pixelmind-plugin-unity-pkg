@@ -14,6 +14,10 @@ public class PixelmindImaginarium : MonoBehaviour
     [Tooltip("Specifies if in-game GUI should be displayed")]
     [SerializeField]
     public bool enableGUI = false;
+    
+    [Tooltip("Specifies if in-game Skybox GUI should be displayed")]
+    [SerializeField]
+    public bool enableSkyboxGUI = false;
 
     [Tooltip("Specifies if the result should automatically be assigned as the sprite of the current game objects sprite renderer")]
     [SerializeField]
@@ -51,22 +55,93 @@ public class PixelmindImaginarium : MonoBehaviour
     {
         if (enableGUI)
         {
-            DefineStyles();
+            DrawGUILayout();
+        } 
+        else if (enableSkyboxGUI)
+        {
+            DrawSkyboxGUILayout();
+        }
+    }
+    
+    private void DrawSkyboxGUILayout()
+    {
+        DefineStyles();
         
-            GUILayout.BeginArea(new Rect(Screen.width - (Screen.width / 3), 0, 300, Screen.height), guiStyle);
+        GUILayout.BeginArea(new Rect(Screen.width - (Screen.width / 3), 0, 300, Screen.height), guiStyle);
         
-            if (GUILayout.Button("Get Generators"))
-            {
-                _ = GetGeneratorsWithFields();
-            }
+        if (GUILayout.Button("Get Styles"))
+        {
+            _ = GetSkyboxStyleOptions();
+        }
 
-            // Iterate over generator fields and render them
-            if (generatorFields.Count > 0)
-            {
-                RenderInGameFields();
-            }
+        // Iterate over generator fields and render them
+        if (skyboxStyleFields.Count > 0)
+        {
+            RenderSkyboxInGameFields();
+        }
             
-            GUILayout.EndArea(); 
+        GUILayout.EndArea(); 
+    }
+
+    private void DrawGUILayout()
+    {
+        DefineStyles();
+        
+        GUILayout.BeginArea(new Rect(Screen.width - (Screen.width / 3), 0, 300, Screen.height), guiStyle);
+        
+        if (GUILayout.Button("Get Generators"))
+        {
+            _ = GetGeneratorsWithFields();
+        }
+
+        // Iterate over generator fields and render them
+        if (generatorFields.Count > 0)
+        {
+            RenderInGameFields();
+        }
+            
+        GUILayout.EndArea(); 
+    }
+    
+    private void RenderSkyboxInGameFields()
+    {
+        GUILayout.BeginVertical("Box");
+        skyboxStyleOptionsIndex = GUILayout.SelectionGrid(skyboxStyleOptionsIndex, skyboxStyleOptions, 1);
+        GUILayout.EndVertical();
+            
+        if (skyboxStyleOptionsIndex != lastSkyboxStyleOptionsIndex) {
+            GetSkyboxStyleFields(skyboxStyleOptionsIndex);
+            lastSkyboxStyleOptionsIndex = skyboxStyleOptionsIndex;
+        }
+            
+        foreach (var field in skyboxStyleFields)
+        {
+            // Begin horizontal layout
+            GUILayout.BeginHorizontal();
+            
+            // Create label for field
+            GUILayout.Label(field.name + "*");
+
+            // Create text field for field value
+            field.value = GUILayout.TextField(field.value);
+
+            // End horizontal layout
+            GUILayout.EndHorizontal();
+        }
+
+        if (PercentageCompleted() >= 0 && PercentageCompleted() < 100)
+        {
+            if (GUILayout.Button("Cancel (" + PercentageCompleted() + "%)"))
+            {
+                Cancel();
+            }
+        }
+        else
+        {
+            if (GUILayout.Button("Generate"))
+            {
+                _ = InitializeSkyboxGeneration(skyboxStyleFields, skyboxStyles[skyboxStyleOptionsIndex].id, true);
+            }
         }
     }
 
