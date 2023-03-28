@@ -58,7 +58,7 @@ After importing the samples load one of the above mentioned sample scenes inside
 
 On the sample scene you loaded there is game object named `Pusher`. If you don't plan on using Pusher you can delete it in order
 to avoid any future `The referenced script (PusherManager) on this Behaviour is missing!` warnings.
-If you plan on using Pusher on Runtime, add your Pixelmind's API `secret` Key in the designated field and that is it
+If you plan on using Pusher on Runtime, add your Pixelmind's API `Secret` Key in the designated field and that is it
 for that object.
 
 #### Editor

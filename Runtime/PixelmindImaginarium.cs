@@ -211,11 +211,16 @@ public class PixelmindImaginarium : MonoBehaviour
     {
         skyboxStyleFields = new List<SkyboxStyleField>();
         
-        foreach (UserInput fieldData in skyboxStyles[index].userInputs)
-        {
-            var field = new SkyboxStyleField(fieldData);
-            skyboxStyleFields.Add(field);
-        }
+        // add the default prompt field
+        var promptField = new SkyboxStyleField(
+            new UserInput(
+                "prompt",
+                1,
+                "prompt",
+                ""
+            )
+        );
+        skyboxStyleFields.Add(promptField);
     }
     
     public async Task GetGeneratorsWithFields()
