@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using PixelmindSDK;
+using BlockadeLabsSDK;
 using UnityEditor;
 using UnityEngine;
 
-public class PixelmindImaginarium : MonoBehaviour
+public class BlockadeImaginarium : MonoBehaviour
 {
-    [Tooltip("API Key from Pixelmind")]
+    [Tooltip("API Key from Blockade Labs")]
     [SerializeField]
     public string apiKey;
     
@@ -211,11 +211,16 @@ public class PixelmindImaginarium : MonoBehaviour
     {
         skyboxStyleFields = new List<SkyboxStyleField>();
         
-        foreach (UserInput fieldData in skyboxStyles[index].userInputs)
-        {
-            var field = new SkyboxStyleField(fieldData);
-            skyboxStyleFields.Add(field);
-        }
+        // add the default prompt field
+        var promptField = new SkyboxStyleField(
+            new UserInput(
+                "prompt",
+                1,
+                "prompt",
+                ""
+            )
+        );
+        skyboxStyleFields.Add(promptField);
     }
     
     public async Task GetGeneratorsWithFields()
@@ -425,9 +430,9 @@ public class PixelmindImaginarium : MonoBehaviour
             return;
         }
 
-        if (!AssetDatabase.IsValidFolder("Assets/Pixelmind SDK Assets"))
+        if (!AssetDatabase.IsValidFolder("Assets/Blockade Labs SDK Assets"))
         {
-            AssetDatabase.CreateFolder("Assets", "Pixelmind SDK Assets");
+            AssetDatabase.CreateFolder("Assets", "Blockade Labs SDK Assets");
         }
 
         var maxLength = 20;
@@ -447,7 +452,7 @@ public class PixelmindImaginarium : MonoBehaviour
             var modifiedTextureName = counter == 0 ? textureName : textureName + "_" + counter;
             var modifiedSpriteName = counter == 0 ? spriteName : spriteName + "_" + counter;
 
-            var textureAssets = AssetDatabase.FindAssets(modifiedTextureName, new[] { "Assets/Pixelmind SDK Assets" });
+            var textureAssets = AssetDatabase.FindAssets(modifiedTextureName, new[] { "Assets/Blockade Labs SDK Assets" });
             
             if (textureAssets.Length > 0)
             {
@@ -455,8 +460,8 @@ public class PixelmindImaginarium : MonoBehaviour
                 continue;
             }
 
-            AssetDatabase.CreateAsset(texture, "Assets/Pixelmind SDK Assets/" + modifiedTextureName + ".asset");
-            AssetDatabase.CreateAsset(sprite, "Assets/Pixelmind SDK Assets/" + modifiedSpriteName + ".asset");
+            AssetDatabase.CreateAsset(texture, "Assets/Blockade Labs SDK Assets/" + modifiedTextureName + ".asset");
+            AssetDatabase.CreateAsset(sprite, "Assets/Blockade Labs SDK Assets/" + modifiedSpriteName + ".asset");
             break;
         }
         

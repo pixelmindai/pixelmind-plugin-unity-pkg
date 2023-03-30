@@ -9,7 +9,7 @@ using UnityEngine;
 public class PusherManager : MonoBehaviour
 {
     // A mutation of https://unity3d.com/learn/tutorials/projects/2d-roguelike-tutorial/writing-game-manager
-    [Tooltip("API Secret Key from Pixelmind")]
+    [Tooltip("API Secret Key from Blockade Labs")]
     [SerializeField]
     public string apiSecretKey;
     
@@ -68,13 +68,13 @@ public class PusherManager : MonoBehaviour
     {
         if (imagineIds.Count != previousImagineCount)
         {
-            var pixelmindImaginariums = FindObjectsOfType<PixelmindImaginarium>();
+            var blockadeImaginariums = FindObjectsOfType<BlockadeImaginarium>();
 
-            foreach (var pixelmindImaginarium in pixelmindImaginariums)
+            foreach (var blockadeImaginarium in blockadeImaginariums)
             {
-                if (imagineIds.Last() == pixelmindImaginarium.imagineId)
+                if (imagineIds.Last() == blockadeImaginarium.imagineId)
                 {
-                    _ = pixelmindImaginarium.GetAssets();
+                    _ = blockadeImaginarium.GetAssets();
                 }
             }
 
