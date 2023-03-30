@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace PixelmindSDK
+namespace BlockadeLabsSDK
 {
     public class ApiRequests
     {

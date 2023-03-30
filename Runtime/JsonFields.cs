@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PixelmindSDK
+namespace BlockadeLabsSDK
 {
     [System.Serializable]
     public class CreateSkyboxResult
