@@ -1,11 +1,11 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace PixelmindSDK
+namespace BlockadeLabsSDK
 {
 #if UNITY_EDITOR
-    [CustomEditor(typeof(PixelmindImaginarium))]
-    public class PixelmindImaginariumEditor : Editor
+    [CustomEditor(typeof(BlockadeImaginarium))]
+    public class BlockadeImaginariumEditor : Editor
     {
         private SerializedProperty assignToMaterial;
         private SerializedProperty assignToSpriteRenderer;
@@ -51,7 +51,7 @@ namespace PixelmindSDK
 
             serializedObject.Update();
 
-            var pixelmindImaginarium = (PixelmindImaginarium)target;
+            var blockadeImaginarium = (BlockadeImaginarium)target;
 
             showApi = EditorGUILayout.Foldout(showApi, "Api");
 
@@ -72,69 +72,69 @@ namespace PixelmindSDK
 
             if (!EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                showImagine = EditorGUILayout.Foldout(showImagine, "Imagine");
-
-                if (showImagine)
-                {
-                    if (GUILayout.Button("Get Generators"))
-                    {
-                        _ = pixelmindImaginarium.GetGeneratorsWithFields();
-                    }
-
-                    // Iterate over generator fields and render them in the GUI
-                    if (pixelmindImaginarium.generatorFields.Count > 0)
-                    {
-                        RenderEditorFields(pixelmindImaginarium);
-                    }
-                    
-                    if (pixelmindImaginarium.PercentageCompleted() >= 0 && pixelmindImaginarium.PercentageCompleted() < 100)
-                    {
-                        if (GUILayout.Button("Cancel (" + pixelmindImaginarium.PercentageCompleted() + "%)"))
-                        {
-                            pixelmindImaginarium.Cancel();
-                        }
-                    }
-                    else
-                    {
-                        if (GUILayout.Button("Generate"))
-                        {
-                            _ = pixelmindImaginarium.InitializeGeneration(
-                                pixelmindImaginarium.generatorFields,
-                                pixelmindImaginarium.generators[pixelmindImaginarium.generatorOptionsIndex].generator
-                            );
-                        }
-                    }
-                }
-                
                 showSkybox = EditorGUILayout.Foldout(showSkybox, "Skybox");
 
                 if (showSkybox)
                 {
                     if (GUILayout.Button("Get Styles"))
                     {
-                        _ = pixelmindImaginarium.GetSkyboxStyleOptions();
+                        _ = blockadeImaginarium.GetSkyboxStyleOptions();
                     }
 
                     // Iterate over skybox style fields and render them in the GUI
-                    if (pixelmindImaginarium.skyboxStyleFields.Count > 0)
+                    if (blockadeImaginarium.skyboxStyleFields.Count > 0)
                     {
-                        RenderSkyboxEditorFields(pixelmindImaginarium);
+                        RenderSkyboxEditorFields(blockadeImaginarium);
                     }
                     
-                    if (pixelmindImaginarium.PercentageCompleted() >= 0 && pixelmindImaginarium.PercentageCompleted() < 100)
+                    if (blockadeImaginarium.PercentageCompleted() >= 0 && blockadeImaginarium.PercentageCompleted() < 100)
                     {
-                        if (GUILayout.Button("Cancel (" + pixelmindImaginarium.PercentageCompleted() + "%)"))
+                        if (GUILayout.Button("Cancel (" + blockadeImaginarium.PercentageCompleted() + "%)"))
                         {
-                            pixelmindImaginarium.Cancel();
+                            blockadeImaginarium.Cancel();
                         }
                     }
                     else
                     {
                         if (GUILayout.Button("Generate Skybox"))
                         {
-                            _ = pixelmindImaginarium.InitializeSkyboxGeneration(
-                                pixelmindImaginarium.skyboxStyleFields,
-                                pixelmindImaginarium.skyboxStyles[pixelmindImaginarium.skyboxStyleOptionsIndex].id
+                            _ = blockadeImaginarium.InitializeSkyboxGeneration(
+                                blockadeImaginarium.skyboxStyleFields,
+                                blockadeImaginarium.skyboxStyles[blockadeImaginarium.skyboxStyleOptionsIndex].id
+                            );
+                        }
+                    }
+                }
+                
+                showImagine = EditorGUILayout.Foldout(showImagine, "Imagine");
+
+                if (showImagine)
+                {
+                    if (GUILayout.Button("Get Generators"))
+                    {
+                        _ = blockadeImaginarium.GetGeneratorsWithFields();
+                    }
+
+                    // Iterate over generator fields and render them in the GUI
+                    if (blockadeImaginarium.generatorFields.Count > 0)
+                    {
+                        RenderEditorFields(blockadeImaginarium);
+                    }
+                    
+                    if (blockadeImaginarium.PercentageCompleted() >= 0 && blockadeImaginarium.PercentageCompleted() < 100)
+                    {
+                        if (GUILayout.Button("Cancel (" + blockadeImaginarium.PercentageCompleted() + "%)"))
+                        {
+                            blockadeImaginarium.Cancel();
+                        }
+                    }
+                    else
+                    {
+                        if (GUILayout.Button("Generate"))
+                        {
+                            _ = blockadeImaginarium.InitializeGeneration(
+                                blockadeImaginarium.generatorFields,
+                                blockadeImaginarium.generators[blockadeImaginarium.generatorOptionsIndex].generator
                             );
                         }
                     }
@@ -145,28 +145,28 @@ namespace PixelmindSDK
                 if (showOutput)
                 {
                     EditorGUILayout.PropertyField(resultImage);
-                    if (pixelmindImaginarium.previewImage != null) GUILayout.Box(pixelmindImaginarium.previewImage);
+                    if (blockadeImaginarium.previewImage != null) GUILayout.Box(blockadeImaginarium.previewImage);
                 }
             }
 
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void RenderEditorFields(PixelmindImaginarium pixelmindImaginarium)
+        private void RenderEditorFields(BlockadeImaginarium blockadeImaginarium)
         {
             EditorGUI.BeginChangeCheck();
 
-            pixelmindImaginarium.generatorOptionsIndex = EditorGUILayout.Popup(
-                pixelmindImaginarium.generatorOptionsIndex,
-                pixelmindImaginarium.generatorOptions
+            blockadeImaginarium.generatorOptionsIndex = EditorGUILayout.Popup(
+                blockadeImaginarium.generatorOptionsIndex,
+                blockadeImaginarium.generatorOptions
             );
 
             if (EditorGUI.EndChangeCheck())
             {
-                pixelmindImaginarium.GetGeneratorFields(pixelmindImaginarium.generatorOptionsIndex);
+                blockadeImaginarium.GetGeneratorFields(blockadeImaginarium.generatorOptionsIndex);
             }
 
-            foreach (var field in pixelmindImaginarium.generatorFields)
+            foreach (var field in blockadeImaginarium.generatorFields)
             {
                 // Begin horizontal layout
                 EditorGUILayout.BeginHorizontal();
@@ -183,21 +183,21 @@ namespace PixelmindSDK
             }
         }
         
-        private void RenderSkyboxEditorFields(PixelmindImaginarium pixelmindImaginarium)
+        private void RenderSkyboxEditorFields(BlockadeImaginarium blockadeImaginarium)
         {
             EditorGUI.BeginChangeCheck();
 
-            pixelmindImaginarium.skyboxStyleOptionsIndex = EditorGUILayout.Popup(
-                pixelmindImaginarium.skyboxStyleOptionsIndex,
-                pixelmindImaginarium.skyboxStyleOptions
+            blockadeImaginarium.skyboxStyleOptionsIndex = EditorGUILayout.Popup(
+                blockadeImaginarium.skyboxStyleOptionsIndex,
+                blockadeImaginarium.skyboxStyleOptions
             );
 
             if (EditorGUI.EndChangeCheck())
             {
-                pixelmindImaginarium.GetSkyboxStyleFields(pixelmindImaginarium.skyboxStyleOptionsIndex);
+                blockadeImaginarium.GetSkyboxStyleFields(blockadeImaginarium.skyboxStyleOptionsIndex);
             }
 
-            foreach (var field in pixelmindImaginarium.skyboxStyleFields)
+            foreach (var field in blockadeImaginarium.skyboxStyleFields)
             {
                 // Begin horizontal layout
                 EditorGUILayout.BeginHorizontal();

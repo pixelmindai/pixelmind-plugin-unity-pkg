@@ -1,5 +1,5 @@
 {
-    "name": "330ai.PixelmindSDK.Runtime",
+    "name": "com.BlockadeLabsSDK.Runtime",
     "rootNamespace": "",
     "references": [],
     "includePlatforms": [],

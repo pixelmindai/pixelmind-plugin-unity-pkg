@@ -1,18 +1,13 @@
 ﻿using System.Collections.Generic;
 
-namespace PixelmindSDK
+namespace BlockadeLabsSDK
 {
     [System.Serializable]
     public class CreateSkyboxResult
     {
-        public List<CreateSkyboxRequest> imaginations { get; set; }
-    }
-    
-    public class CreateSkyboxRequest
-    {
         public string id { get; set; }
     }
-    
+
     [System.Serializable]
     public class CreateImagineResult
     {
@@ -78,14 +73,6 @@ namespace PixelmindSDK
     {
         public int id;
         public string name;
-        public List<UserInput> userInputs = new List<UserInput>();
-
-        // Constructor to initialize style with data from API response
-        public SkyboxStyle(int id, string name)
-        {
-            this.id = id;
-            this.name = name;
-        }
     }
     
     public class UserInput
